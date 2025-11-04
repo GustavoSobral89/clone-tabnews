@@ -1,5 +1,5 @@
 function Home(){
-    return <h1>Mensagem amigável! segundo deploy</h1>
+    return <h1>Te amo meu preto 👽</h1>
 }
 
 export default Home
