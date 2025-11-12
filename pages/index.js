@@ -1,5 +1,5 @@
-function Home(){
-    return <h1>Te amo meu preto 👽</h1>
+function Home() {
+  return <h1>Alo👽</h1>;
 }
 
-export default Home
+export default Home;
