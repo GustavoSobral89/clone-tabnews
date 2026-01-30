@@ -1,9 +1,6 @@
 import database from "infra/database.js";
 
 async function status(request, response) {
-  console.log("POSTGRES_HOST:", process.env.POSTGRES_HOST);
-  console.log("POSTGRES_DB:", process.env.POSTGRES_DB);
-  console.log("POSTGRES_USER:", process.env.POSTGRES_USER);
   const updatedAt = new Date().toISOString();
 
   const databaseVersionResult = await database.query("SHOW server_version;");
