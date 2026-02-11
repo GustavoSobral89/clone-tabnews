@@ -12,7 +12,7 @@ async function query(queryObject) {
   } finally {
     await client.end();
   }
-} //staging
+}
 
 async function getNewClient() {
   const client = new Client({
