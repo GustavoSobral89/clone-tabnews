@@ -23,7 +23,7 @@ async function status(request, response) {
     databaseOpenedConnectionsResult.rows[0].count;
 
   response.status(200).json({
-    updated_At: updatedAt,
+    updated_at: updatedAt,
     dependencies: {
       database: {
         version: databaseVersionValue,
