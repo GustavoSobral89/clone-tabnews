@@ -47,8 +47,8 @@ describe("POST to /api/v1/users", () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: "gsobral",
-          email: "teste@gmail.com",
+          username: "duplicateemail1",
+          email: "duplicate@gmail.com",
           password: "senha123",
         }),
       });
@@ -61,8 +61,8 @@ describe("POST to /api/v1/users", () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: "gsobral2",
-          email: "teste@gmail.com",
+          username: "duplicateemail2",
+          email: "duplicate@gmail.com",
           password: "senha123",
         }),
       });
@@ -86,8 +86,8 @@ describe("POST to /api/v1/users", () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: "gsobral",
-          email: "teste@gmail.com",
+          username: "duplicateuser",
+          email: "duplicateuser1@gmail.com",
           password: "senha123",
         }),
       });
@@ -100,8 +100,8 @@ describe("POST to /api/v1/users", () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: "gsobral",
-          email: "teste2@gmail.com",
+          username: "duplicateuser",
+          email: "duplicateuser2@gmail.com",
           password: "senha123",
         }),
       });
