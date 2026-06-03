@@ -1,11 +1,11 @@
-export const up = (pgm) => {
+exports.up = (pgm) => {
   pgm.createTable("users", {
     id: {
       type: "uuid",
       primaryKey: true,
       default: pgm.func("gen_random_uuid()"),
     },
-    // For reference, Github liits username to 39 characters.
+    // For reference, Github limits username to 39 characters.
     username: {
       type: "varchar(30)",
       notNull: true,
@@ -37,4 +37,4 @@ export const up = (pgm) => {
   });
 };
 
-export const down = false;
+exports.down = false;
