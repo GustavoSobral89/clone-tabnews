@@ -73,7 +73,7 @@ describe("GET to /api/v1/users/[username]", () => {
         id: response3.id,
         username: "CaseDiferente",
         email: "case.diferente@gmail.com",
-        password: "senha123",
+        password: response3.password,
         created_at: response3.created_at,
         updated_at: response3.updated_at,
       });
