@@ -59,7 +59,6 @@ export class ValidationError extends Error {
   }
 }
 
-
 export class MethodNotAllowedError extends Error {
   constructor() {
     super("Método não permitido para este endpoint.");
