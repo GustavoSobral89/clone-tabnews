@@ -26,7 +26,7 @@ async function postHandler(request, response) {
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
   });
-  response.setHeader("Set-Cookie", `session_id=${newSession.token}`);
+  response.setHeader("Set-Cookie", setCookie);
 
   return response.status(201).json(newSession);
 }
