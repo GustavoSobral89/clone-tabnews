@@ -9,7 +9,7 @@ beforeAll(async () => {
   await orchestrator.runPendingMigrations();
 });
 
-describe("GET to /api/v1/user", () => {
+describe("DELETE to /api/v1/sessions", () => {
   describe("Default user", () => {
     test("With valid session", async () => {
       const createdUser = await orchestrator.createUser({
@@ -18,7 +18,8 @@ describe("GET to /api/v1/user", () => {
 
       const sessionObject = await orchestrator.createSession(createdUser.id);
 
-      const response = await fetch("http://localhost:3000/api/v1/user", {
+      const response = await fetch("http://localhost:3000/api/v1/sessions", {
+        method: "DELETE",
         headers: {
           Cookie: `session_id=${sessionObject.token}`,
         },
@@ -26,35 +27,26 @@ describe("GET to /api/v1/user", () => {
 
       expect(response.status).toBe(200);
 
-      const cacheControl = response.headers.get("Cache-Control");
-      expect(cacheControl).toBe(
-        "no-store, no-cache, max-age=0, must-revalidate",
-      );
-
       const responseBody = await response.json();
 
       expect(responseBody).toEqual({
-        id: createdUser.id,
-        username: "UserWithValidSession",
-        email: createdUser.email,
-        password: createdUser.password,
-        created_at: createdUser.created_at.toISOString(),
-        updated_at: createdUser.updated_at.toISOString(),
+        id: sessionObject.id,
+        token: sessionObject.token,
+        user_id: createdUser.id,
+        expires_at: responseBody.expires_at,
+        created_at: sessionObject.created_at.toISOString(),
+        updated_at: responseBody.updated_at,
       });
 
       expect(uuidVersion(responseBody.id)).toBe(4);
-      expect(Date.parse(responseBody.created_at)).not.toBeNaN();
+      expect(Date.parse(responseBody.expires_at)).not.toBeNaN();
       expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
 
-      const renewedSessionObject = await session.findOneValidByToken(
-        sessionObject.token,
-      );
-
       expect(
-        renewedSessionObject.expires_at > sessionObject.expires_at,
+        new Date(responseBody.expires_at) < sessionObject.expires_at,
       ).toEqual(true);
       expect(
-        renewedSessionObject.updated_at > sessionObject.updated_at,
+        new Date(responseBody.updated_at) > sessionObject.updated_at,
       ).toEqual(true);
 
       // Set-Cookie assertions
@@ -64,10 +56,30 @@ describe("GET to /api/v1/user", () => {
 
       expect(parsedSetCookie.session_id).toEqual({
         name: "session_id",
-        value: sessionObject.token,
-        maxAge: session.EXPIRATION_IN_MILLISECONDS / 1000,
+        value: "invalid",
+        maxAge: -1,
         path: "/",
         httpOnly: true,
+      });
+
+      const doubleCheckResponse = await fetch(
+        "http://localhost:3000/api/v1/user",
+        {
+          headers: {
+            Cookie: `session_id=${sessionObject.token}`,
+          },
+        },
+      );
+
+      expect(doubleCheckResponse.status).toBe(401);
+
+      const doubleCheckResponseBody = await doubleCheckResponse.json();
+
+      expect(doubleCheckResponseBody).toEqual({
+        name: "UnauthorizedError",
+        message: "Dados da autenticação não conferem.",
+        action: "Verifique se os dados enviados estão corretos.",
+        status_code: 401,
       });
     });
 
@@ -84,7 +96,8 @@ describe("GET to /api/v1/user", () => {
 
       jest.useRealTimers();
 
-      const response = await fetch("http://localhost:3000/api/v1/user", {
+      const response = await fetch("http://localhost:3000/api/v1/sessions", {
+        method: "DELETE",
         headers: {
           Cookie: `session_id=${sessionObject.token}`,
         },
@@ -100,28 +113,16 @@ describe("GET to /api/v1/user", () => {
         action: "Verifique se os dados enviados estão corretos.",
         status_code: 401,
       });
-
-      // Set-Cookie assertions
-      const parsedSetCookie = setCookieParser(response, {
-        map: true,
-      });
-
-      expect(parsedSetCookie.session_id).toEqual({
-        name: "session_id",
-        value: "invalid",
-        maxAge: -1,
-        path: "/",
-        httpOnly: true,
-      });
     });
 
     test("With nonexistent session", async () => {
-      const nonexistent =
+      const nonexistentToken =
         "eed3e5dfa882ab6ca94ac2725f15aa511e8a2c5a5cb371893f505bfe8adde5655807bc0df99c485bc7b75e414d9d18fe";
 
-      const response = await fetch("http://localhost:3000/api/v1/user", {
+      const response = await fetch("http://localhost:3000/api/v1/sessions", {
+        method: "DELETE",
         headers: {
-          Cookie: `session_id=${nonexistent}`,
+          Cookie: `session_id=${nonexistentToken}`,
         },
       });
 
@@ -134,19 +135,6 @@ describe("GET to /api/v1/user", () => {
         message: "Dados da autenticação não conferem.",
         action: "Verifique se os dados enviados estão corretos.",
         status_code: 401,
-      });
-
-      // Set-Cookie assertions
-      const parsedSetCookie = setCookieParser(response, {
-        map: true,
-      });
-
-      expect(parsedSetCookie.session_id).toEqual({
-        name: "session_id",
-        value: "invalid",
-        maxAge: -1,
-        path: "/",
-        httpOnly: true,
       });
     });
   });
